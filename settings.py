@@ -11,6 +11,7 @@ REDDISH = (240,55,66)
 SKY_BLUE = (143, 185, 252)
 FONT_NAME = 'arial'
 SPRITESHEET = "spritesheet_jumper.png"
+SPRITESHEET2 = "spritesheet.png"
 # data files
 HS_FILE = "highscore.txt"
 # player settings
@@ -21,11 +22,13 @@ PLAYER_JUMP = 20
 # game settings
 BOOST_POWER = 60
 POW_SPAWN_PCT = 7
-MOB_FREQ = 5000
+MOB_FREQ = 500
+# layers - uses numerical value in layered sprites
 PLAYER_LAYER = 2
 PLATFORM_LAYER = 1
 POW_LAYER = 1
 MOB_LAYER = 2
+CLOUD_LAYER = 0
 
 # platform settings
 ''' old platforms from drawing rectangles'''

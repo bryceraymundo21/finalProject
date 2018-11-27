@@ -37,7 +37,6 @@ class Player(Sprite):
         # self.image = pg.Surface((30,40))
         # self.image = self.game.spritesheet.get_image(614,1063,120,191)
         self.image = self.standing_frames[0]
-
         self.image.set_colorkey(BLACK)
         # self.image.fill(BLACK)
         self.rect = self.image.get_rect()
@@ -55,6 +54,7 @@ class Player(Sprite):
         self.walk_frames_r = [self.game.spritesheet.get_image(678, 860, 120, 201),
                                 self.game.spritesheet.get_image(692, 1458, 120, 207)
                                 ]
+        '''setup left frames by flipping and appending them into an empty list'''
         self.walk_frames_l = []
         for frame in self.walk_frames_r:
             frame.set_colorkey(BLACK)
@@ -116,6 +116,14 @@ class Player(Sprite):
         if self.walking:
             if now - self.last_update > 200:
                 self.last_update = now
+                '''
+                assigns current frame based on the next frame and the remaining frames in the list.
+                If current frame is 'two' in a list with three elements, then:
+                2 + 1 = 3; 3 modulus 3 is zero, setting the animation back to its first frame.
+                If current frame is zero, then:
+                0 + 1 = 1; 1 modulus 3 is 1; 2 modulus 3 is 2; 3 modulus 3 is o
+
+                '''
                 self.current_frame = (self.current_frame + 1) % len(self.walk_frames_l)
                 bottom = self.rect.bottom
                 if self.vel.x > 0:
@@ -135,8 +143,31 @@ class Player(Sprite):
                 self.image = self.standing_frames[self.current_frame]
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
-
-
+        # collide will find this property if it is called self.mask
+        self.mask = pg.mask.from_surface(self.image)
+class Cloud(Sprite):
+    def __init__(self, game):
+        # allows layering in LayeredUpdates sprite group
+        self._layer = CLOUD_LAYER
+        # add Platforms to game groups when instantiated
+        self.groups = game.all_sprites, game.clouds
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = choice(self.game.cloud_images)
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        scale = randrange (50, 101) / 100
+        self.image = pg.transform.scale(self.image, (int(self.rect.width * scale), 
+                                                     int(self.rect.height * scale)))
+        self.rect.x = randrange(WIDTH - self.rect.width)
+        self.rect.y = randrange(-500, -50)
+        self.speed = randrange(1,3)
+    def update(self):
+        if self.rect.top > HEIGHT * 2: 
+            self.kill
+        self.rect.x += self.speed
+        if self.rect.x > WIDTH:
+            self.rect.x = -self.rect.width
 class Platform(Sprite):
     def __init__(self, game, x, y):
         # allows layering in LayeredUpdates sprite group
@@ -157,7 +188,6 @@ class Platform(Sprite):
         self.rect.y = y
         if random.randrange(100) < POW_SPAWN_PCT:
             Pow(self.game, self)
-
 class Pow(Sprite):
     def __init__(self, game, plat):
         # allows layering in LayeredUpdates sprite group
@@ -178,7 +208,6 @@ class Pow(Sprite):
         # checks to see if plat is in the game's platforms group so we can kill the powerup instance
         if not self.game.platforms.has(self.plat):
             self.kill()
-
 class Mob(Sprite):
     def __init__(self, game):
         # allows layering in LayeredUpdates sprite group
@@ -199,7 +228,7 @@ class Mob(Sprite):
         self.vx = randrange(1, 4)
         if self.rect.centerx > WIDTH:
             self.vx *= -1
-        self.rect.y = randrange(HEIGHT/2)
+        self.rect.y = randrange(HEIGHT//1.5)
         self.vy = 0
         self.dy = 0.5
     def update(self):
@@ -213,6 +242,8 @@ class Mob(Sprite):
             self.image = self.image_up
         else:
             self.image = self.image_down
+        self.rect = self.image.get_rect()
+        self.mask = pg.mask.from_surface(self.image)
         self.rect.center = center
         self.rect_top = self.rect.top
         self.rect.y += self.vy
