@@ -34,6 +34,7 @@ class Player(Sprite):
         self.current_frame = 0
         self.last_update = 0
         self.load_images()
+        self.doubleJumpPower = False
         # self.image = pg.Surface((30,40))
         # self.image = self.game.spritesheet.get_image(614,1063,120,191)
         self.image = self.standing_frames[0]
@@ -99,13 +100,22 @@ class Player(Sprite):
         # adjust based on checked pixel
         self.rect.y -= 2
         # only allow jumping if player is on platform
-        if hits and not self.jumping:
+        if hits and self.doubleJumpPower== False and not self.jumping:
             # play sound only when space bar is hit and while not jumping
             self.game.jump_sound[choice([0,1])].play()
             # tell the program that player is currently jumping
             self.jumping = True
             self.vel.y = -PLAYER_JUMP
             print(self.acc.y)
+
+        if self.doubleJumpPower == True:
+            # play sound only when space bar is hit and while not jumping
+            self.game.jump_sound[choice([0,1])].play()
+            # tell the program that player is currently jumping
+            self.jumping = True
+            self.vel.y = -PLAYER_JUMP
+            print(self.acc.y)
+            print('double jump is working')
     def animate(self):
         # gets time in miliseconds
         now = pg.time.get_ticks()
@@ -197,8 +207,11 @@ class Pow(Sprite):
         Sprite.__init__(self, self.groups)
         self.game = game
         self.plat = plat
-        self.type = random.choice(['boost'])
-        self.image = self.game.spritesheet.get_image(820, 1805, 71, 70)
+        self.type = random.choice(['boost','doubleJump'])
+        if self.type == 'boost':
+            self.image = self.game.spritesheet.get_image(820, 1805, 71, 70)
+        if self.type == 'doubleJump':
+            self.image = self.game.spritesheet.get_image(826, 1292, 71, 70)
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = self.plat.rect.centerx
@@ -208,6 +221,7 @@ class Pow(Sprite):
         # checks to see if plat is in the game's platforms group so we can kill the powerup instance
         if not self.game.platforms.has(self.plat):
             self.kill()
+
 class Mob(Sprite):
     def __init__(self, game):
         # allows layering in LayeredUpdates sprite group

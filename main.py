@@ -1,4 +1,4 @@
-# this file was created by Chris Cozort
+# this file was created by Bryce Raymundo
 # Sources: goo.gl/2KMivS 
 # now available in github
 
@@ -28,7 +28,7 @@ from settings import *
 from sprites import *
 from os import path
 
-class Game:
+class Game():
     def __init__(self):
         #init game window
         # init pygame and create window
@@ -189,6 +189,12 @@ class Game:
                 self.boost_sound.play()
                 self.player.vel.y = -BOOST_POWER
                 self.player.jumping = False
+            if pow.type == 'doubleJump':
+                #Player(self.doubleJump = True)
+                self.boost_sound.play()
+                self.player.doubleJumpPower=True
+                print(self.player.doubleJumpPower)
+                
         
         # Die!
         if self.player.rect.bottom > HEIGHT:
