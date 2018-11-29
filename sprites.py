@@ -45,7 +45,7 @@ class Player(Sprite):
         self.pos = vec(WIDTH / 2, HEIGHT / 2)
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
-        print("adding vecs " + str(self.vel + self.acc))
+     
     def load_images(self):
         self.standing_frames = [self.game.spritesheet.get_image(690, 406, 120, 201),
                                 self.game.spritesheet.get_image(614, 1063, 120, 191)
@@ -65,8 +65,6 @@ class Player(Sprite):
     def update(self):
         self.animate()
         self.acc = vec(0, PLAYER_GRAV)
-        # print("acc " + str(self.acc))
-        # print("vel " + str(self.vel))
 
         keys = pg.key.get_pressed()
         if keys[pg.K_a]:
@@ -93,7 +91,6 @@ class Player(Sprite):
             if self.vel.y < -5:
                 self.vel.y = -5
     def jump(self):
-        print("jump is working")
         # check pixel below
         self.rect.y += 2
         hits = pg.sprite.spritecollide(self, self.game.platforms, False)
@@ -106,16 +103,15 @@ class Player(Sprite):
             # tell the program that player is currently jumping
             self.jumping = True
             self.vel.y = -PLAYER_JUMP
-            print(self.acc.y)
-
+       
+        #can jump as many times you want for a limited time
         if self.doubleJumpPower == True:
             # play sound only when space bar is hit and while not jumping
             self.game.jump_sound[choice([0,1])].play()
             # tell the program that player is currently jumping
             self.jumping = True
             self.vel.y = -PLAYER_JUMP
-            print(self.acc.y)
-            print('double jump is working')
+           
     def animate(self):
         # gets time in miliseconds
         now = pg.time.get_ticks()

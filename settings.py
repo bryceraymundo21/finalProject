@@ -1,6 +1,6 @@
 TITLE = "jumpy"
 # screen dims
-WIDTH = 480
+WIDTH = 1000
 HEIGHT = 600
 # frames per second
 FPS = 60
@@ -21,7 +21,7 @@ PLAYER_GRAV = 0.8
 PLAYER_JUMP = 20
 # game settings
 BOOST_POWER = 60
-POW_SPAWN_PCT = 7
+POW_SPAWN_PCT = 20
 MOB_FREQ = 500
 # layers - uses numerical value in layered sprites
 PLAYER_LAYER = 2
@@ -40,7 +40,12 @@ PLATFORM_LIST = [(0, HEIGHT - 40, WIDTH, 40),
                  (200, HEIGHT - 450, WIDTH-350, 40)]
 '''
 PLATFORM_LIST = [(0, HEIGHT - 40),
-                 (65, HEIGHT - 300),
+                 (WIDTH/2, HEIGHT - 300),
                  (20, HEIGHT - 350),
                  (200, HEIGHT - 150),
-                 (200, HEIGHT - 450)]
+                 (300, HEIGHT - 450),
+                 (500, HEIGHT - 400),
+                 (600, HEIGHT - 425),
+                 (600, HEIGHT - 500),
+                 (800, HEIGHT - 450),
+                 (900, HEIGHT - 450)]

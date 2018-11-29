@@ -3,15 +3,19 @@
 # now available in github
 
 '''
-Curious, Creative, Tenacious(requires hopefulness)
-
 **********Gameplay ideas:
-Jump on enemy head to create jump boost using power up code
+*means its done or close to being done
+*Jump on enemy head to create jump boost using power up code
 Randomize jump sound
+Add more enemy types
+Platforms move back and forth
+Add a death screen
+*Increase screen size
 
 **********Bugs
 when you get launched by powerup or head jump player sometimes snaps to platform abruptly 
 happens when hitting jump during power up boost
+*the double jump lasts forever instead of 10 seconds
 
 **********Gameplay fixes
 Platform randomness leaves player in limbo for extended periods
@@ -19,6 +23,8 @@ Lower spawn location so player can get out of random stuck situations
 
 **********Features
 Varied powerups
+*Double jump
+Shooting laser beams to destroy enemies
 
 
 '''
@@ -41,6 +47,7 @@ class Game():
         self.running = True
         self.font_name = pg.font.match_font(FONT_NAME)
         self.load_data()
+        self.start_ticks=pg.time.get_ticks()
     def load_data(self):
         print("load data is called...")
         # sets up directory name
@@ -122,9 +129,9 @@ class Game():
     def update(self):
         self.all_sprites.update()
         
-        # shall we spawn a mob?
+        # shall we spawn a mob  ?
         now = pg.time.get_ticks()
-        if now - self.mob_timer > 5000 + random.choice([-1000, -500, 0, 500, 1000]):
+        if now - self.mob_timer > 500 + random.choice([-1000, -500, 0, 500, 1000]):
             self.mob_timer = now
             Mob(self)
         ##### check for mob collisions ######
@@ -134,14 +141,14 @@ class Game():
         if mob_hits:
             # can use mask collide here if mob count gets too high and creates performance issues
             if self.player.pos.y - 35 < mob_hits[0].rect_top:
-                print("hit top")
-                print("player is " + str(self.player.pos.y))
-                print("mob is " + str(mob_hits[0].rect_top))
+                # print("hit top")
+                # print("player is " + str(self.player.pos.y))
+                # print("mob is " + str(mob_hits[0].rect_top))
                 self.head_jump_sound.play()
                 self.player.vel.y = -BOOST_POWER
             else:
-                print("player is " + str(self.player.pos.y))
-                print("mob is " + str(mob_hits[0].rect_top))
+                # print("player is " + str(self.player.pos.y))
+                # print("mob is " + str(mob_hits[0].rect_top))
                 self.playing = False
 
         # check to see if player can jump - if falling
@@ -189,13 +196,22 @@ class Game():
                 self.boost_sound.play()
                 self.player.vel.y = -BOOST_POWER
                 self.player.jumping = False
+            #added double jump
             if pow.type == 'doubleJump':
                 #Player(self.doubleJump = True)
                 self.boost_sound.play()
                 self.player.doubleJumpPower=True
-                print(self.player.doubleJumpPower)
                 
-        
+                
+        if self.player.doubleJumpPower==True:
+            
+            seconds=(pg.time.get_ticks()-self.start_ticks)/1000
+           
+            if seconds > 10:
+                self.player.doubleJumpPower=False
+                self.start_ticks=pg.time.get_ticks()
+
+
         # Die!
         if self.player.rect.bottom > HEIGHT:
             '''make all sprites fall up when player falls'''
@@ -207,8 +223,8 @@ class Game():
         if len(self.platforms) == 0:
             self.playing = False
         # generate new random platforms
-        while len(self.platforms) < 6:
-            width = random.randrange(50, 100)
+        while len(self.platforms) < 15:
+            width = random.randrange(50, 950)
             ''' removed widths and height params to allow for sprites '''
             """ changed due to passing into groups through sprites lib file """
             # p = Platform(self, random.randrange(0,WIDTH-width), 
