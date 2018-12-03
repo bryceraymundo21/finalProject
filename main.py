@@ -91,7 +91,8 @@ class Game():
         self.clouds = pg.sprite.Group()
         # add powerups
         self.powerups = pg.sprite.Group()
-        
+        #add items
+        self.wings = pg.sprite.Group()
         self.mob_timer = 0
         # add a player 1 to the group
         self.player = Player(self)
@@ -202,12 +203,13 @@ class Game():
                 self.boost_sound.play()
                 self.player.doubleJumpPower=True
                 
-                
+                 
         if self.player.doubleJumpPower==True:
-            
+            self.wings = WingLeft(self)
+
             seconds=(pg.time.get_ticks()-self.start_ticks)/1000
            
-            if seconds > 10:
+            if seconds > 5:
                 self.player.doubleJumpPower=False
                 self.start_ticks=pg.time.get_ticks()
 

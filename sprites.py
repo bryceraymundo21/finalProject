@@ -151,6 +151,22 @@ class Player(Sprite):
                 self.rect.bottom = bottom
         # collide will find this property if it is called self.mask
         self.mask = pg.mask.from_surface(self.image)
+
+class WingLeft(Sprite):
+    #adds wings to the player when given power up
+    def __init__(self,game):
+        self._layer=PLAYER_LAYER
+        self.groups = game.all_sprites, game.wings
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.player = Player(self)
+        self.image = self.game.spritesheet.get_image(558,651,85,74)
+        self.rect = self.image.get_rect()
+    def update(self):
+        self.rect.y= self.player.rect.y
+        self.rect.x = self.player.rect.x
+        
+
 class Cloud(Sprite):
     def __init__(self, game):
         # allows layering in LayeredUpdates sprite group
