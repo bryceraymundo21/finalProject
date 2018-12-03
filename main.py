@@ -42,14 +42,14 @@ class Game():
         # init sound mixer
         pg.mixer.init()
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
-        pg.display.set_caption("jumpy")
+        pg.display.set_caption("")
         self.clock = pg.time.Clock()
         self.running = True
         self.font_name = pg.font.match_font(FONT_NAME)
         self.load_data()
         self.start_ticks=pg.time.get_ticks()
     def load_data(self):
-        print("load data is called...")
+        #print("load data is called...")
         # sets up directory name
         self.dir = path.dirname(__file__)
         img_dir = path.join(self.dir, 'img')
@@ -61,11 +61,11 @@ class Game():
             # changed to r to avoid overwriting error
             with open(path.join(self.dir, "highscore.txt"), 'r') as f:
                 self.highscore = int(f.read())
-                print(self.highscore)
+                #print(self.highscore)
         except:
             with open(path.join(self.dir, HS_FILE), 'w') as f:
                 self.highscore = 0
-                print("exception")
+                #print("exception")
         # load spritesheet image
         self.spritesheet = Spritesheet(path.join(img_dir, SPRITESHEET)) 
         #load cloud images
@@ -159,7 +159,7 @@ class Game():
                 find_lowest = hits[0]
                 for hit in hits:
                     if hit.rect.bottom > find_lowest.rect.bottom:
-                        print("hit rect bottom " + str(hit.rect.bottom))
+                        #print("hit rect bottom " + str(hit.rect.bottom))
                         find_lowest = hit
                 # fall if center is off platform
                 if self.player.pos.x < find_lowest.rect.right + 10 and self.player.pos.x > find_lowest.rect.left - 10:
@@ -275,7 +275,7 @@ class Game():
         self.wait_for_key()
     def show_go_screen(self):
         """ # game splash screen """
-        if not self.running:
+        if not self.running: 
             print("not running...")
             return
         self.screen.fill(BLACK)

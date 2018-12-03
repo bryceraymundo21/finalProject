@@ -43,9 +43,9 @@ PLATFORM_LIST = [(0, HEIGHT - 40),
                  (WIDTH/2, HEIGHT - 300),
                  (20, HEIGHT - 350),
                  (200, HEIGHT - 150),
-                 (300, HEIGHT - 450),
+                 (300, HEIGHT - 300),
                  (500, HEIGHT - 400),
                  (600, HEIGHT - 425),
-                 (600, HEIGHT - 500),
-                 (800, HEIGHT - 450),
-                 (900, HEIGHT - 450)]
+                 (600, HEIGHT - 250),
+                 (800, HEIGHT - 550),
+                 (900, HEIGHT - 500)]
