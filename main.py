@@ -33,6 +33,7 @@ import random
 from settings import *
 from sprites import *
 from os import path
+from math import *
 
 class Game():
     def __init__(self):
@@ -91,12 +92,13 @@ class Game():
         self.clouds = pg.sprite.Group()
         # add powerups
         self.powerups = pg.sprite.Group()
-        
         self.mob_timer = 0
         # add a player 1 to the group
         self.player = Player(self)
+        
         # add mobs
         self.mobs = pg.sprite.Group()
+        
         # no longer needed after passing self.groups in Sprites library file
         # self.all_sprites.add(self.player)
         # instantiate new platform 
@@ -127,11 +129,11 @@ class Game():
             self.draw()
         pg.mixer.music.fadeout(1000)
     def update(self):
-        self.all_sprites.update()
+        self.all_sprites .update()
         
         # shall we spawn a mob  ?
         now = pg.time.get_ticks()
-        if now - self.mob_timer > 500 + random.choice([-1000, -500, 0, 500, 1000]):
+        if now - self.mob_timer > 4000 + random.choice([-1000, -500, 0, 500, 1000]):
             self.mob_timer = now
             Mob(self)
         ##### check for mob collisions ######
@@ -201,15 +203,37 @@ class Game():
                 #Player(self.doubleJump = True)
                 self.boost_sound.play()
                 self.player.doubleJumpPower=True
+            if pow.type == 'laser':
+                self.player.laserPower=True
+                #add laser
+                self.laser = Laser(self,self.player)
                 
-                
+        #if the player aquired double jump run this for 5 seconds
         if self.player.doubleJumpPower==True:
-            
-            seconds=(pg.time.get_ticks()-self.start_ticks)/1000
-           
-            if seconds > 10:
+
+            self.seconds=(pg.time.get_ticks()-self.start_ticks)/1000
+            self.intsecs = int(round(self.seconds))
+            #self.draw_text(str(seconds), 100, WHITE, self.player.pos.x, self.player.pos.y)
+            #print(str(seconds))
+            if self.seconds > 5:
+                # self.laser.kill()
                 self.player.doubleJumpPower=False
-                self.start_ticks=pg.time.get_ticks()
+                self.start_ticks=pg.time.get_ticks() 
+                
+
+        #if the player aquired laser run this for 5 seconds
+        if self.player.laserPower==True:
+            # self.player.updateLaser()
+            self.seconds=(pg.time.get_ticks()-self.start_ticks)/1000
+            self.intsecs = int(round(self.seconds))
+            #self.draw_text(str(seconds), 100, WHITE, self.player.pos.x, self.player.pos.y)
+            #print(str(seconds))
+            if self.seconds > 5:
+                self.laser.kill()
+                self.player.laserPower=False
+                self.start_ticks=pg.time.get_ticks() 
+
+                
 
 
         # Die!
@@ -252,6 +276,11 @@ class Game():
         """ # not needed now that we're using LayeredUpdates """
         # self.screen.blit(self.player.image, self.player.rect)
         self.draw_text(str(self.score), 22, WHITE, WIDTH / 2, 15)
+        #adds a timer to the bottom of the player sprite
+        if self.player.doubleJumpPower==True:
+            self.draw_text(str(self.intsecs), 100, WHITE, self.player.pos.x, self.player.pos.y)
+        if self.player.laserPower == True:
+            self.draw_text(str(self.intsecs), 100, WHITE, self.player.pos.x, self.player.pos.y)
         # double buffering - renders a frame "behind" the displayed frame
         pg.display.flip()
     def wait_for_key(self): 

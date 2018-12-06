@@ -35,6 +35,8 @@ class Player(Sprite):
         self.last_update = 0
         self.load_images()
         self.doubleJumpPower = False
+        self.laserPower = False
+        self.laser = None
         # self.image = pg.Surface((30,40))
         # self.image = self.game.spritesheet.get_image(614,1063,120,191)
         self.image = self.standing_frames[0]
@@ -62,6 +64,12 @@ class Player(Sprite):
             self.walk_frames_l.append(pg.transform.flip(frame, True, False))
         self.jump_frame = self.game.spritesheet.get_image(382, 763, 150, 181)
         self.jump_frame.set_colorkey(BLACK)
+    # def getLaser(self):
+    #     #add laser
+    #     self.laser = Laser(self,self.player)
+    # def updateLaser(self,game):
+    #     self.laser.update()
+
     def update(self):
         self.animate()
         self.acc = vec(0, PLAYER_GRAV)
@@ -151,6 +159,28 @@ class Player(Sprite):
                 self.rect.bottom = bottom
         # collide will find this property if it is called self.mask
         self.mask = pg.mask.from_surface(self.image)
+
+class Laser(Sprite):
+    def __init__(self, game, player):
+        # allows layering in LayeredUpdates sprite group
+        self._layer = LASER_LAYER
+        # add a groups property where we can pass all instances of this object into game groups
+        self.groups = game.all_sprites
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.player = player
+        self.image = pg.Surface((50,600))
+        self.image.fill(REDDISH)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.player.rect.centerx
+        self.rect.bottom = self.player.rect.top - 5
+    def update(self):
+        self.rect.bottom = self.player.rect.top - 5
+        # checks to see if plat is in the game's platforms group so we can kill the powerup instance
+        self.rect.x = self.player.pos.x
+        self.rect.y = self.player.pos.y
+
+
 class Cloud(Sprite):
     def __init__(self, game):
         # allows layering in LayeredUpdates sprite group
@@ -203,11 +233,13 @@ class Pow(Sprite):
         Sprite.__init__(self, self.groups)
         self.game = game
         self.plat = plat
-        self.type = random.choice(['boost','doubleJump'])
+        self.type = random.choice(['boost','doubleJump','laser'])
         if self.type == 'boost':
             self.image = self.game.spritesheet.get_image(820, 1805, 71, 70)
         if self.type == 'doubleJump':
             self.image = self.game.spritesheet.get_image(826, 1292, 71, 70)
+        if self.type == 'laser':
+            self.image = self.game.spritesheet.get_image(826,134,71,70)
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = self.plat.rect.centerx

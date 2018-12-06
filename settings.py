@@ -1,4 +1,4 @@
-TITLE = "jumpy"
+TITLE = "Cliff jumper"
 # screen dims
 WIDTH = 1000
 HEIGHT = 600
@@ -9,7 +9,7 @@ WHITE = (255, 255, 255)
 BLACK = (0,0,0)
 REDDISH = (240,55,66)
 SKY_BLUE = (143, 185, 252)
-FONT_NAME = 'arial'
+FONT_NAME = 'Comic Sans'
 SPRITESHEET = "spritesheet_jumper.png"
 SPRITESHEET2 = "spritesheet.png"
 # data files
@@ -28,6 +28,7 @@ PLAYER_LAYER = 2
 PLATFORM_LAYER = 1
 POW_LAYER = 1
 MOB_LAYER = 2
+LASER_LAYER = 3
 CLOUD_LAYER = 0
 
 # platform settings
