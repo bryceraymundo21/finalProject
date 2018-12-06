@@ -49,6 +49,7 @@ class Game():
         self.font_name = pg.font.match_font(FONT_NAME)
         self.load_data()
         self.start_ticks=pg.time.get_ticks()
+        print(self.start_ticks)
     def load_data(self):
         #print("load data is called...")
         # sets up directory name
@@ -212,6 +213,7 @@ class Game():
         if self.player.doubleJumpPower==True:
             #adds a timer
             self.seconds=(pg.time.get_ticks()-self.start_ticks)/1000
+            
             #rounds to seconds
             self.intsecs = int(round(self.seconds))
             #self.draw_text(str(seconds), 100, WHITE, self.player.pos.x, self.player.pos.y)
@@ -230,9 +232,9 @@ class Game():
             #self.draw_text(str(seconds), 100, WHITE, self.player.pos.x, self.player.pos.y)
             #print(str(seconds))
             if self.seconds > 5:
-                self.laser.kill()
                 self.player.laserPower=False
                 self.start_ticks=pg.time.get_ticks() 
+                self.laser.kill()
 
 
         # Die!
@@ -246,7 +248,7 @@ class Game():
         if len(self.platforms) == 0:
             self.playing = False
         # generate new random platforms
-        while len(self.platforms) < 15:
+        while len(self.platforms) < 20:
             width = random.randrange(50, 950)
             ''' removed widths and height params to allow for sprites '''
             """ changed due to passing into groups through sprites lib file """
