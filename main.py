@@ -1,5 +1,5 @@
 # this file was created by Bryce Raymundo
-# Sources: goo.gl/2KMivS 
+# Sources: goo.gl/2KMivS https://bit.ly/2Eiqmtx
 # now available in github
 
 '''
@@ -210,8 +210,9 @@ class Game():
                 
         #if the player aquired double jump run this for 5 seconds
         if self.player.doubleJumpPower==True:
-
+            #adds a timer
             self.seconds=(pg.time.get_ticks()-self.start_ticks)/1000
+            #rounds to seconds
             self.intsecs = int(round(self.seconds))
             #self.draw_text(str(seconds), 100, WHITE, self.player.pos.x, self.player.pos.y)
             #print(str(seconds))
@@ -232,8 +233,6 @@ class Game():
                 self.laser.kill()
                 self.player.laserPower=False
                 self.start_ticks=pg.time.get_ticks() 
-
-                
 
 
         # Die!

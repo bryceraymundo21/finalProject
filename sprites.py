@@ -10,6 +10,7 @@ from pygame.sprite import Sprite
 import random
 from random import randint, randrange, choice
 from settings import *
+import math
 
 vec = pg.math.Vector2
 class Spritesheet:
@@ -179,6 +180,11 @@ class Laser(Sprite):
         # checks to see if plat is in the game's platforms group so we can kill the powerup instance
         self.rect.x = self.player.pos.x
         self.rect.y = self.player.pos.y
+        mouse_x, mouse_y = pg.mouse.get_pos()
+        rel_x, rel_y = mouse_x - self.rect.x, mouse_y - self.rect.y
+        angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
+        self.newImage = pg.transform.rotate(self.image, int(angle))
+        # self.rect = self.image.get_rect(center=self.position)
 
 
 class Cloud(Sprite):
