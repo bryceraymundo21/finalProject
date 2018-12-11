@@ -6,7 +6,7 @@
 **********Gameplay ideas:
 *means its done or close to being done
 *Jump on enemy head to create jump boost using power up code
-Randomize jump sound
+
 Add more enemy types
 Platforms move back and forth
 Add a death screen
@@ -82,6 +82,9 @@ class Game():
         self.boost_sound = pg.mixer.Sound(path.join(self.snd_dir, 'Jump29.wav'))
         self.head_jump_sound = pg.mixer.Sound(path.join(self.snd_dir, 'Jump39.wav'))
     def new(self):
+        self.zone = "grass"
+        self.zoneRotation=0
+        self.changeInScore = 2000
         self.score = 0
         # add all sprites to the pg group
         # below no longer needed - using LayeredUpdate group
@@ -106,7 +109,7 @@ class Game():
         for plat in PLATFORM_LIST:
             # no longer need to assign to variable because we're passing self.groups in Sprite library
             # p = Platform(self, *plat)
-            Platform(self, *plat)
+            Platform(self, self.zone, *plat)
             # no longer needed because we pass in Sprite lib file
             # self.all_sprites.add(p)
             # self.platforms.add(p)
@@ -130,6 +133,38 @@ class Game():
             self.draw()
         pg.mixer.music.fadeout(1000)
     def update(self):
+        # self.zonecycle = self.score
+        # if self.zones > 500:
+        #     self.zones = 0
+        # if self.zones > 100:
+        #     self.zone = "Winter"
+        # if self.zones > 200:
+        #     self.zone = "Donut"
+        # if self.zones > 300:
+        #     self.zone = "Desert"
+        # if self.zones > 400:
+        #     self.zone = ""
+        if self.changeInScore < self.score:
+            self.changeInScore = self.score + 1000
+            print(self.changeInScore)
+            self.zoneRotation +=1
+            if self.zoneRotation == 0:
+                self.zone = "grass"
+            if self.zoneRotation == 1:
+                self.zone = "wood"
+            if self.zoneRotation == 2:
+                self.zone = "cake"
+            if self.zoneRotation == 3:
+                self.zone = "stone"
+            if self.zoneRotation == 4:
+                self.zone = "snow"
+            if self.zoneRotation >= 5:
+                self.zoneRotation= 0
+                self.zone="grass"
+
+
+
+
         self.all_sprites .update()
         
         # shall we spawn a mob  ?
@@ -204,6 +239,7 @@ class Game():
                 #Player(self.doubleJump = True)
                 self.boost_sound.play()
                 self.player.doubleJumpPower=True
+
             if pow.type == 'laser':
                 self.player.laserPower=True
                 #add laser
@@ -254,7 +290,8 @@ class Game():
             """ changed due to passing into groups through sprites lib file """
             # p = Platform(self, random.randrange(0,WIDTH-width), 
             #                 random.randrange(-75, -30))
-            Platform(self, random.randrange(0,WIDTH-width), 
+            
+            Platform(self, self.zone, random.randrange(0,WIDTH-width),
                             random.randrange(-75, -30))
             # self.platforms.add(p)
             # self.all_sprites.add(p)
