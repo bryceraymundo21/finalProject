@@ -1,16 +1,16 @@
 # this file was created by Bryce Raymundo
-# Sources: goo.gl/2KMivS https://bit.ly/2Eiqmtx
+# Sources: goo.gl/2KMivS https://bit.ly/2Eiqmtx shooting carrots from Benthan, following mouse from Joe
 # now available in github
 
 '''
 **********Gameplay ideas:
 *means its done or close to being done
 *Jump on enemy head to create jump boost using power up code
-
-Add more enemy types
-Platforms move back and forth
-Add a death screen
+Platforms move back and forth-Did not get to this feature
+Add a death screen-Did not get to this feature
 *Increase screen size
+*Change the platform theme based on score
+*Shoot carrots using x to kill enemies  
 
 **********Bugs
 when you get launched by powerup or head jump player sometimes snaps to platform abruptly 
@@ -20,11 +20,14 @@ happens when hitting jump during power up boost
 **********Gameplay fixes
 Platform randomness leaves player in limbo for extended periods
 Lower spawn location so player can get out of random stuck situations
+ 
 
 **********Features
-Varied powerups
+*Varied powerups
 *Double jump
-Shooting laser beams to destroy enemies
+*Shooting laser beams to destroy enemies
+*Roblox oof sound plays when you kill an enemy
+*Equip sound for laser
 
 
 '''
@@ -49,6 +52,7 @@ class Game():
         self.font_name = pg.font.match_font(FONT_NAME)
         self.load_data()
         self.start_ticks=pg.time.get_ticks()
+        self.mobTimes = 4000
         print(self.start_ticks)
     def load_data(self):
         #print("load data is called...")
@@ -81,11 +85,14 @@ class Game():
                             pg.mixer.Sound(path.join(self.snd_dir, 'Jump24.wav'))]
         self.boost_sound = pg.mixer.Sound(path.join(self.snd_dir, 'Jump29.wav'))
         self.head_jump_sound = pg.mixer.Sound(path.join(self.snd_dir, 'Jump39.wav'))
+        self.laser_sound = pg.mixer.Sound(path.join(self.snd_dir, 'laser.wav'))
+        self.death_sound = pg.mixer.Sound(path.join(self.snd_dir, 'rabloxDeath.wav'))
     def new(self):
         self.zone = "grass"
         self.zoneRotation=0
         self.changeInScore = 2000
         self.score = 0
+        self.carrot_pow=0
         # add all sprites to the pg group
         # below no longer needed - using LayeredUpdate group
         # self.all_sprites = pg.sprite.Group()
@@ -97,9 +104,12 @@ class Game():
         # add powerups
         self.powerups = pg.sprite.Group()
         self.mob_timer = 0
+        #add carrots
+        self.carrotups = pg.sprite.Group()
         # add a player 1 to the group
         self.player = Player(self)
         
+        self.lasers = pg.sprite.Group()
         # add mobs
         self.mobs = pg.sprite.Group()
         
@@ -132,18 +142,9 @@ class Game():
             self.update()
             self.draw()
         pg.mixer.music.fadeout(1000)
+    
     def update(self):
-        # self.zonecycle = self.score
-        # if self.zones > 500:
-        #     self.zones = 0
-        # if self.zones > 100:
-        #     self.zone = "Winter"
-        # if self.zones > 200:
-        #     self.zone = "Donut"
-        # if self.zones > 300:
-        #     self.zone = "Desert"
-        # if self.zones > 400:
-        #     self.zone = ""
+        #changes how the platforms look based on the score
         if self.changeInScore < self.score:
             self.changeInScore = self.score + 1000
             print(self.changeInScore)
@@ -162,14 +163,17 @@ class Game():
                 self.zoneRotation= 0
                 self.zone="grass"
 
-
+        if pg.sprite.groupcollide(self.mobs, self.carrotups, True, True):
+            self.death_sound.play()
+            self.score +=10
+    
 
 
         self.all_sprites .update()
         
         # shall we spawn a mob  ?
         now = pg.time.get_ticks()
-        if now - self.mob_timer > 4000 + random.choice([-1000, -500, 0, 500, 1000]):
+        if now - self.mob_timer > self.mobTimes + random.choice([-1000, -500, 0, 500, 1000]):
             self.mob_timer = now
             Mob(self)
         ##### check for mob collisions ######
@@ -179,14 +183,9 @@ class Game():
         if mob_hits:
             # can use mask collide here if mob count gets too high and creates performance issues
             if self.player.pos.y - 35 < mob_hits[0].rect_top:
-                # print("hit top")
-                # print("player is " + str(self.player.pos.y))
-                # print("mob is " + str(mob_hits[0].rect_top))
                 self.head_jump_sound.play()
                 self.player.vel.y = -BOOST_POWER
             else:
-                # print("player is " + str(self.player.pos.y))
-                # print("mob is " + str(mob_hits[0].rect_top))
                 self.playing = False
 
         # check to see if player can jump - if falling
@@ -239,11 +238,22 @@ class Game():
                 #Player(self.doubleJump = True)
                 self.boost_sound.play()
                 self.player.doubleJumpPower=True
+                self.jetpack= Jetpack(self,self.player)
 
+            #if the power type is a laser
             if pow.type == 'laser':
+                self.laser_sound.play()
+                self.mobTimes = 500
                 self.player.laserPower=True
                 #add laser
                 self.laser = Laser(self,self.player)
+            
+            #if the player hits the catus reduce score by 100
+            if pow.type == 'decor':
+                self.score = self.score-100
+                
+                self.draw_text("-100",100, WHITE, self.player.pos.x, self.player.pos.y)
+
                 
         #if the player aquired double jump run this for 5 seconds
         if self.player.doubleJumpPower==True:
@@ -252,25 +262,35 @@ class Game():
             
             #rounds to seconds
             self.intsecs = int(round(self.seconds))
-            #self.draw_text(str(seconds), 100, WHITE, self.player.pos.x, self.player.pos.y)
-            #print(str(seconds))
+
             if self.seconds > 5:
-                # self.laser.kill()
+                #destroys the jetpack
+                self.jetpack.kill()
                 self.player.doubleJumpPower=False
                 self.start_ticks=pg.time.get_ticks() 
                 
+                
 
-        #if the player aquired laser run this for 5 seconds
+        #if the player acquired laser run this for 10 seconds
         if self.player.laserPower==True:
-            # self.player.updateLaser()
             self.seconds=(pg.time.get_ticks()-self.start_ticks)/1000
             self.intsecs = int(round(self.seconds))
-            #self.draw_text(str(seconds), 100, WHITE, self.player.pos.x, self.player.pos.y)
-            #print(str(seconds))
+            #if the laser collides with a mob destroy both of them
+            if pg.sprite.groupcollide(self.mobs, self.lasers, True, False):
+                self.death_sound.play()
+                self.score +=10
+
+            #sets the mob timer back to normal aft er 5 seconds            
             if self.seconds > 5:
+                self.mobTimes = 4000
+
+            #after 5 seconds kill the laser                
+            if self.seconds > 10:
+                
+                self.laser.kill()
                 self.player.laserPower=False
                 self.start_ticks=pg.time.get_ticks() 
-                self.laser.kill()
+                
 
 
         # Die!
@@ -308,6 +328,10 @@ class Game():
                     if event.key == pg.K_SPACE:
                         """ # cuts the jump short if the space bar is released """
                         self.player.jump_cut()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_x:
+                        Carrot(self,self.player.rect.centerx, self.player.rect.centery)
+                        self.carrotups.update()
     def draw(self):
         self.screen.fill(SKY_BLUE)
         self.all_sprites.draw(self.screen)
@@ -331,6 +355,9 @@ class Game():
                     self.running = False
                 if event.type ==pg.KEYUP:
                     waiting = False
+    # def is_collided_with(self, sprite):
+    #     return self.rect.colliderect(sprite.rect)
+
     def show_start_screen(self):
         """ # game splash screen """
         self.screen.fill(BLACK)

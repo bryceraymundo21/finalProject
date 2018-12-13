@@ -42,6 +42,9 @@ class Player(Sprite):
         # self.image = self.game.spritesheet.get_image(614,1063,120,191)
         self.image = self.standing_frames[0]
         self.image.set_colorkey(BLACK)
+        self.height = self.image.get_height()
+        self.width = self.image.get_width()
+        
         # self.image.fill(BLACK)
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH / 2, HEIGHT /2)
@@ -65,12 +68,7 @@ class Player(Sprite):
             self.walk_frames_l.append(pg.transform.flip(frame, True, False))
         self.jump_frame = self.game.spritesheet.get_image(382, 763, 150, 181)
         self.jump_frame.set_colorkey(BLACK)
-    # def getLaser(self):
-    #     #add laser
-    #     self.laser = Laser(self,self.player)
-    # def updateLaser(self,game):
-    #     self.laser.update()
-
+   
     def update(self):
         self.animate()
         self.acc = vec(0, PLAYER_GRAV)
@@ -166,43 +164,56 @@ class Laser(Sprite):
         # allows layering in LayeredUpdates sprite group
         self._layer = LASER_LAYER
         # add a groups property where we can pass all instances of this object into game groups
-        self.groups = game.all_sprites
+        self.groups = game.all_sprites, game.lasers
         Sprite.__init__(self, self.groups)
         self.game = game
         self.player = player
-        self.image = pg.Surface((50,600))
+        self.image = pg.Surface((20,700)).convert_alpha()
+        # rotates image to follow to mouse
         self.rotated_image = self.image
         self.original_image = self.image
         self.image.fill(REDDISH)
         self.rect = self.image.get_rect()
         self.rotated_rect = self.rect
         self.original_rect = self.rect
+        self.height = self.image.get_height()
         self.rect.centerx = self.player.rect.centerx
         self.rect.bottom = self.player.rect.top - 5
     def update(self):
-        self.rect.bottom = self.player.rect.top - 5
+        self.image = self.original_image
+        self.rect = self.original_rect
+        #self.rect.bottom = self.player.rect.top - 5
         # makes the x and y the same as the player
         self.rect.x = self.player.pos.x
         self.rect.y = self.player.pos.y
 
+        self.mx, self.my = pg.mouse.get_pos()
         
+        #rotate the laser to follow the mouse with help from Joe
+        self.rect.y = self.player.rect.y - (self.height / 2) + (self.player.height / 2)
 
-        # # Calculate x and y distances to the mouse pos.
-        # run, rise = (mouse_pos[0]-x, mouse_pos[1]-y)
-        # # Pass the rise and run to atan2 (in this order)
-        # # and convert the angle to degrees.
-        # angle = math.degrees(math.atan2(rise, run))
-        # # Rotate the image (use the negative angle).
-        # rotimage = pygame.transform.rotate(image, -angle)
-        # rect = rotimage.get_rect(center=(x, y))
-        # return rotimage, rect
-        # mouse_x, mouse_y = pg.mouse.get_pos()
-        # rel_x, rel_y = mouse_x - self.rect.x, mouse_y - self.rect.y
-        # angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
-        # self.newImage = pg.transform.rotate(self.image, int(angle))
-        # self.rect = self.image.get_rect(center=self.position)
+        self.cent_x, self.cent_y = self.player.rect.x + self.player.width / 2 , self.player.rect.y + self.player.height / 2
 
-class LeftWing(Sprite):
+        side1_length = math.sqrt((self.cent_x - self.mx) **2 + ((self.cent_y + self.player.height / 2) - self.my)**2)
+        side2_length = self.player.height / 2
+        side3_length = math.sqrt((self.cent_x - self.mx) **2 + (self.cent_y - self.my)**2)
+        self.deg_rotate = math.degrees(math.acos(((side2_length **2) + (side3_length **2) - (side1_length **2)) / (2 * side2_length * side3_length)))
+        
+        if self.mx <= self.player.rect.x + (self.player.width/2):
+            self.deg_rotate *= -1
+            
+        self.pivot = self.player.width/2
+        self.pivotOffset = pg.math.Vector2(0, self.pivot).rotate(-self.deg_rotate)
+
+        self.rotated_image = pg.transform.rotate(self.image, self.deg_rotate).convert_alpha()
+        self.rotated_rect = self.rotated_image.get_rect(center=self.rect.center+ self.pivotOffset)
+
+        self.image = self.rotated_image
+        self.rect = self.rotated_rect
+
+
+
+class Jetpack(Sprite):
     def __init__(self, game, player):
         # allows layering in LayeredUpdates sprite group
         self._layer = LASER_LAYER
@@ -211,18 +222,19 @@ class LeftWing(Sprite):
         Sprite.__init__(self, self.groups)
         self.game = game
         self.player = player
-        self.left_wing = self.game.spritesheet.get_image(558, 651, 85, 74)
-        self.right_wing = self.game.spritesheet.get_image(571, 1458, 85,74)
-        self.image = self.left_wing
+        self.jetpackIm = self.game.spritesheet.get_image(563,1843, 133,160)
+        self.image = self.jetpackIm
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
 
         self.rect.centerx = self.player.rect.centerx
-        self.rect.bottom = self.player.rect.top - 5
+        #self.rect.bottom = self.player.rect.top - 5
     def update(self):
-        self.rect.bottom = self.player.rect.top - 5
+        #self.rect.bottom = self.player.rect.top - 5
         # checks to see if plat is in the game's platforms group so we can kill the powerup instance
-        self.rect.x = self.player.pos.x
-        self.rect.y = self.player.pos.y
+        self.rect.x = self.player.pos.x-10
+        self.rect.y = self.player.pos.y-40
+
 
 class Cloud(Sprite):
     def __init__(self, game):
@@ -256,6 +268,7 @@ class Platform(Sprite):
         Sprite.__init__(self, self.groups)
         self.game = game
         
+        #gets the images for the platforms
         imageCake = [self.game.spritesheet.get_image(0, 576,380, 94),
 	                self.game.spritesheet.get_image(0, 0, 380, 94),
 	                self.game.spritesheet.get_image(218, 1456, 201, 100),
@@ -279,9 +292,6 @@ class Platform(Sprite):
         if zone == "snow":
             self.image = random.choice(imageSnow)
         self.image.set_colorkey(BLACK)
-        '''leftovers from random rectangles before images'''
-        # self.image = pg.Surface((w,h))
-        # self.image.fill(WHITE)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -296,13 +306,17 @@ class Pow(Sprite):
         Sprite.__init__(self, self.groups)
         self.game = game
         self.plat = plat
-        self.type = random.choice(['boost','doubleJump','laser'])
+        self.type = random.choice(['boost','doubleJump','laser','decor'])
+        #changes the image of the powerup based on what the random choice is
         if self.type == 'boost':
             self.image = self.game.spritesheet.get_image(820, 1805, 71, 70)
         if self.type == 'doubleJump':
             self.image = self.game.spritesheet.get_image(826, 1292, 71, 70)
         if self.type == 'laser':
             self.image = self.game.spritesheet.get_image(826,134,71,70)
+        if self.type == 'decor':
+            self.image = self.game.spritesheet.get_image(707,134,117,160)
+        #keys out the black color in the image
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = self.plat.rect.centerx
@@ -312,7 +326,26 @@ class Pow(Sprite):
         # checks to see if plat is in the game's platforms group so we can kill the powerup instance
         if not self.game.platforms.has(self.plat):
             self.kill()
-
+class Carrot(Sprite):
+    def __init__(self,game,playerPosx,playerPosY):
+        #makes carrots shoot out of the bunny
+        self._layer=MOB_LAYER
+        self.groups=game.all_sprites, game.carrotups
+        Sprite.__init__ (self,self.groups)
+        self.game = game
+        self.type = random.choice(["carrot"])
+        self.image = pg.Surface((78,70))
+        self.image = self.game.spritesheet.get_image(820,1733,78,70)
+        self.image.set_colorkey(BLACK)
+        self.rect=self.image.get_rect()
+        self.rect.centerx=playerPosx
+        self.rect.bottom=playerPosY+5
+        self.image= pg.transform.rotate(self.image,randint(0,360))
+    def update(self):
+        #shoots carrot up 10 units
+        self.rect.y -=10
+        if self.rect.top > WIDTH +100:
+            self.kill()
 class Mob(Sprite):
     def __init__(self, game):
         # allows layering in LayeredUpdates sprite group
