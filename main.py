@@ -268,6 +268,7 @@ class Game():
                 self.jetpack.kill()
                 self.player.doubleJumpPower=False
                 self.start_ticks=pg.time.get_ticks() 
+                self.jetpack.kill()
                 
                 
 
@@ -290,6 +291,7 @@ class Game():
                 self.laser.kill()
                 self.player.laserPower=False
                 self.start_ticks=pg.time.get_ticks() 
+                self.laser.kill()
                 
 
 
